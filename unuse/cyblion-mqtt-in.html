@@ -1,0 +1,32 @@
+<script>
+	RED.nodes.registerType('cyblion mqtt in', {
+		category: 'cyblion mqtt',
+		color: '#d8bfd8',
+		defaults: {
+			name: { value: "" },
+            topic: {value: ""},
+            client: { value: '', type: 'cyblion-mqtt-broker' },
+		},
+		inputs: 0,
+		outputs: 1,
+		icon: 'bridge.svg',
+		label: function () {
+			return this.name;
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="cyblion mqtt in">
+    <div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i>Client</label>
+		<input id="node-input-client" />
+	</div>
+	<div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i>Topic</label>
+		<input type="text" id="node-input-topic" />
+	</div>
+    <div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+		<input type="text" id="node-input-name" placeholder="Name" />
+	</div>
+</script>

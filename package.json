@@ -1,0 +1,22 @@
+{
+  "name": "node-red-cyblion",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "node-red": {
+    "nodes": {
+      "cyblion-mqtt-broker": "nodes/config/cyblion-mqtt-broker.js",
+      "encrypt-value" : "nodes/encrypt/encrypt-value.js",
+      "encrypt-timeseries" : "nodes/encrypt/encrypt-timeseries.js"
+    }
+  },
+  "dependencies": {
+    "mqtt": "^4.3.7"
+  }
+}

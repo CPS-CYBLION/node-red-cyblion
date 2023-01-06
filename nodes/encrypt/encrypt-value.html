@@ -1,0 +1,48 @@
+<script>
+	RED.nodes.registerType('encrypt value', {
+		category: 'cyblion',
+		color: '#d8bfd8',
+		defaults: {
+			name: { value: "" },
+			context: { value: '', type: 'context' },
+			publicKey: { value: '', type: 'publicKey' },
+            client: { value: '', type: 'cyblion-mqtt-broker' },
+			topic: {value: ""},
+			variable: {value: ""}
+		},
+		inputs: 1,
+		outputs: 0,
+		icon: 'bridge.svg',
+		label: function () {
+			return this.name;
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="encrypt value">
+	<div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i>Context</label>
+		<input id="node-input-context" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-publicKey"><i class="fa fa-tag"></i>PublicKey</label>
+		<input id="node-input-publicKey" />
+	</div>
+    <div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i>Client</label>
+		<input id="node-input-client" />
+	</div>
+	<div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i>Topic</label>
+		<input type="text" id="node-input-topic" />
+	</div>
+	<div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i>Variable</label>
+		<input type="text" id="node-input-variable" />
+	</div>
+    <div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+		<input type="text" id="node-input-name" placeholder="Name" />
+	</div>
+</script>

@@ -1,0 +1,33 @@
+<script type="text/javascript">
+    RED.nodes.registerType('cyblion-mqtt-broker', {
+        category: 'config',
+        defaults: {
+            name: {value: ""},
+            deviceId: {value: "", required: true},
+            deviceToken: {value: "", required: true}
+        },
+        label: function() {
+            return this.name;
+        }
+
+    })
+</script>
+
+
+<script type="text/html" data-template-name="cyblion-mqtt-broker">
+	<div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
+		<input type="text" id="node-config-input-name" />
+	</div>
+
+    <div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Device ID</label>
+		<input type="text" id="node-config-input-deviceId" />
+	</div>
+
+    <div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Device Token</label>
+		<input type="text" id="node-config-input-deviceToken" />
+	</div>
+
+</script>
