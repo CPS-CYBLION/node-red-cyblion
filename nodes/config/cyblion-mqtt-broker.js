@@ -1,5 +1,82 @@
 module.exports = function (RED) {
     const Cyblion = require("../../lib/cyblion-mqtt/index");
+
+    function hasProperty(obj, propName) {
+        //JavaScript does not protect the property name hasOwnProperty
+        //Object.prototype.hasOwnProperty.call is the recommended/safer test
+        return Object.prototype.hasOwnProperty.call(obj, propName);
+    }
+
+    function updateStatus(node) {
+        let setStatus = setStatusDisconnected;
+        if (node.connecting) {
+            setStatus = setStatusConnecting;
+        } else if (node.connected) {
+            setStatus = setStatusConnected;
+        }
+        setStatus(node, true);
+    }
+
+    function setStatusDisconnected(node, allNodes) {
+        if (allNodes) {
+            for (var id in node.users) {
+                if (hasProperty(node.users, id)) {
+                    node.users[id].status({
+                        fill: "red",
+                        shape: "ring",
+                        text: "node-red:common.status.disconnected",
+                    });
+                }
+            }
+        } else {
+            node.status({
+                fill: "red",
+                shape: "ring",
+                text: "node-red:common.status.disconnected",
+            });
+        }
+    }
+
+    function setStatusConnecting(node, allNodes) {
+        if (allNodes) {
+            for (var id in node.users) {
+                if (hasProperty(node.users, id)) {
+                    node.users[id].status({
+                        fill: "yellow",
+                        shape: "ring",
+                        text: "node-red:common.status.connecting",
+                    });
+                }
+            }
+        } else {
+            node.status({
+                fill: "yellow",
+                shape: "ring",
+                text: "node-red:common.status.connecting",
+            });
+        }
+    }
+
+    function setStatusConnected(node, allNodes) {
+        if (allNodes) {
+            for (var id in node.users) {
+                if (hasProperty(node.users, id)) {
+                    node.users[id].status({
+                        fill: "green",
+                        shape: "dot",
+                        text: "node-red:common.status.connected",
+                    });
+                }
+            }
+        } else {
+            node.status({
+                fill: "green",
+                shape: "dot",
+                text: "node-red:common.status.connected",
+            });
+        }
+    }
+
     function mqttBrokerHandle(config) {
         RED.nodes.createNode(this, config);
         const node = this;
@@ -7,6 +84,31 @@ module.exports = function (RED) {
         node.deviceId = config.deviceId;
         node.deviceToken = config.deviceToken;
         node.connected = false;
+        node.users = {};
+
+        node.register = function (mqttNode) {
+            node.users[mqttNode.id] = mqttNode;
+            if (Object.keys(node.users).length === 1) {
+                node.connect();
+                //update nodes status
+                setTimeout(function () {
+                    updateStatus(node, true);
+                }, 1);
+            }
+        };
+
+        node.deregister = function (mqttNode, done, autoDisconnect) {
+            delete node.users[mqttNode.id];
+            if (
+                autoDisconnect &&
+                node.connected &&
+                Object.keys(node.users).length == 0
+            ) {
+                node.disconnect(done);
+            } else {
+                done();
+            }
+        };
 
         node.connect = function () {
             if (!node.connected) {
@@ -23,6 +125,7 @@ module.exports = function (RED) {
                 node.client.on("connected", () => {
                     node.connected = true;
                     console.log("mqtt connected");
+                    setStatusConnected(node, true);
                 });
 
                 node.client.connect();
@@ -33,6 +136,7 @@ module.exports = function (RED) {
             if (node.connected && node.client) {
                 node.client.once("disconnected", () => {
                     callback();
+                    setStatusDisconnected(node, true);
                 });
                 node.client.disconnect();
             }
@@ -77,10 +181,6 @@ module.exports = function (RED) {
                 done();
             });
         });
-
-        if (!node.connected && !node.client) {
-            node.connect();
-        }
     }
 
     RED.nodes.registerType("cyblion-mqtt-broker", mqttBrokerHandle);

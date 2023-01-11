@@ -10,6 +10,16 @@ module.exports = function (RED) {
         node.client = RED.nodes.getNode(node.clientNodeId);
         node.publishTopic = `${node.topic}/${node.variable}`;
 
+        if (node.client.connected) {
+            node.status({
+                fill: "green",
+                shape: "dot",
+                text: "node-red:common.status.connected",
+            });
+        }
+
+        node.client.register(node);
+
         // seal
         const globalContext = this.context().global;
         const seal = globalContext.get("seal");
@@ -72,12 +82,6 @@ module.exports = function (RED) {
                         const cipherText_time =
                             encryptor.encrypt(plainText_time);
 
-                        node.status({
-                            fill: "yellow",
-                            shape: "ring",
-                            text: `Encrypted`,
-                        });
-
                         msg.latestNodeId = config.id;
                         const cipherText_base64 = cipherText.save();
                         const cipherText_base64_time = cipherText_time.save();
@@ -97,12 +101,6 @@ module.exports = function (RED) {
                             `${node.topic}/time`,
                             cipherText_base64_time
                         );
-
-                        node.status({
-                            fill: "green",
-                            shape: "ring",
-                            text: `Sent`,
-                        });
                     }
                 } catch (err) {
                     node.error(err);
@@ -110,6 +108,15 @@ module.exports = function (RED) {
                 }
             });
         }
+
+        node.on("close", function (removed, done) {
+            if (node.client) {
+                node.client.deregister(node, done, removed);
+                node.client = null;
+            } else {
+                done();
+            }
+        });
     }
 
     RED.nodes.registerType("encrypt timeseries", encryptValue);

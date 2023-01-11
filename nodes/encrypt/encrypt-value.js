@@ -10,6 +10,16 @@ module.exports = function (RED) {
         node.client = RED.nodes.getNode(node.clientNodeId);
         node.publishTopic = `${node.topic}/${node.variable}`;
 
+        if (node.client.connected) {
+            node.status({
+                fill: "green",
+                shape: "dot",
+                text: "node-red:common.status.connected",
+            });
+        }
+
+        node.client.register(node);
+
         // seal
         const globalContext = this.context().global;
         const seal = globalContext.get("seal");
@@ -91,6 +101,15 @@ module.exports = function (RED) {
                 }
             });
         }
+
+        node.on("close", function (removed, done) {
+            if (node.client) {
+                node.client.deregister(node, done, removed);
+                node.client = null;
+            } else {
+                done();
+            }
+        });
     }
 
     RED.nodes.registerType("encrypt value", encryptValue);
